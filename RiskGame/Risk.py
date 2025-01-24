@@ -141,7 +141,3 @@ while len(players[0].territories) > 0 and len(players[1].territories) > 0:
             print("Invalid Move")
         move = [input("Choose an attacking territory"), input("Choose a defending territory")]
     turn += 1
-print(players[0].territories[0])
-print(players[1].territories[1])
-print(calculateBonus(game, players[0]), calculateBonus(game, players[1]))
-print(attackTerritory(game, players[0].territories[0], players[1].territories[1]))
