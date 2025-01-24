@@ -121,8 +121,8 @@ def countTroops(game):
         troops[game[tile].owner] += game[tile].troops
     return troops
 
-game = readGameInfo(open("/workspaces/RiskML/RiskGame/GameInfo.csv", "r"))
-players = randomizeOwnership(game,2)
+game = readGameInfo(open("GameInfo.csv", "r"))
+players = randomizeOwnership(game, 2)
 randomizeTroops(game, players)
 printGame(game)
 print()
@@ -135,7 +135,10 @@ while len(players[0].territories) > 0 and len(players[1].territories) > 0:
     print("Make your move")
     move = [input("Choose an attacking territory"), input("Choose a defending territory")]
     while move[0] != "DONE":
-        if move[0] in players[playerTurn].territories and not move[1] in players[playerTurn].territories:
+        if ".info" in move[0]:
+            move[0].replace(".info", "")
+            print(game[move[0]].troops, game[move[0]].owner)
+        elif move[0] in players[playerTurn].territories and not move[1] in players[playerTurn].territories:
             attackTerritory(game, move[0], move[1])
         else:
             print("Invalid Move")
