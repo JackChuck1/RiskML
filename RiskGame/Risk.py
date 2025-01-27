@@ -114,6 +114,16 @@ def printGame(game):
     for tile in game:
         print(f"{tile}: {game[tile]}")
 
+def findMoves(player, game):
+    movesData = []
+    moves = []
+    for playerTile in game:
+        if game[playerTile].owner == player:
+            for enemyTile in game[playerTile].adjacent:
+                if game[enemyTile].owner != player:
+                    moves.append([playerTile, enemyTile])
+                    movesData.append([game[playerTile].troops, game[enemyTile].troops])
+    return [movesData, moves]
 #Utility method
 def countTroops(game):
     troops = [0,0]
@@ -121,12 +131,13 @@ def countTroops(game):
         troops[game[tile].owner] += game[tile].troops
     return troops
 
-game = readGameInfo(open("GameInfo.csv", "r"))
+game = readGameInfo(open("RiskGame/GameInfo.csv", "r"))
 players = randomizeOwnership(game, 2)
 randomizeTroops(game, players)
 printGame(game)
 print()
 turn = 0
+
 while len(players[0].territories) > 0 and len(players[1].territories) > 0:
     playerTurn = turn % 2
     troops = calculateBonus(game, players[playerTurn])
