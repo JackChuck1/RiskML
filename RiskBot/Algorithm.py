@@ -1,2 +1,4 @@
 from sklearn import neural_network
-bot = neaurl_network.MLPClassifier()
+bot = neural_network.MLPClassifier()
+
+#X values: [FriendlyTroops, EnemyTroops, TotalAdjacentEnemy]

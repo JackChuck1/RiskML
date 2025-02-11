@@ -4,6 +4,7 @@ class Player:
     def __init__(self):
         self.territories = []
         self.troopBonus = []
+        self.index = -1
 class Tile:
     def __init__(self, continent, adjacent):
         self.continent = continent
@@ -29,6 +30,8 @@ def readGameInfo(file:__file__):
 def randomizeOwnership(game, teams):
     teamMax = [42//teams] * teams
     players = [Player(), Player()]
+    players[0].index = 0
+    players[1].index = 1
     for tile in game:
         rand = random.randint(0,teams-1)
         while teamMax[rand] == 0:
@@ -124,6 +127,20 @@ def findMoves(player, game):
                     moves.append([playerTile, enemyTile])
                     movesData.append([game[playerTile].troops, game[enemyTile].troops])
     return [movesData, moves]
+
+def sumFriendly(game, name):
+    sum = 0
+    for tile in game[name].adjacent:
+        sum += game[tile].troops
+    return sum
+
+def sendData(game, player):
+    dataFile = open("/workspaces/RiskML/RiskBot/GameData.txt", "w")
+    for tile in player.territories:
+        for enemyTile in game[tile].adjacent:
+            if game[enemyTile].owner != player.index:
+                dataFile.write(f"{game[tile].troops}, {game[enemyTile].troops}, {sumFriendly(game, enemyTile)}\n")
+
 #Utility method
 def countTroops(game):
     troops = [0,0]
@@ -139,7 +156,9 @@ print()
 turn = 0
 
 while len(players[0].territories) > 0 and len(players[1].territories) > 0:
+    
     playerTurn = turn % 2
+    sendData(game, players[playerTurn])
     troops = calculateBonus(game, players[playerTurn])
     name = input(f"You have {troops} troops, where would you like the place them")
     placeTroops(game, name, troops)
