@@ -136,6 +136,7 @@ def sumFriendly(game, name):
 
 def sendData(game, player):
     dataFile = open("/workspaces/RiskML/RiskBot/GameData.txt", "w")
+    dataFile.write(f"{player.index}\n")
     for tile in player.territories:
         for enemyTile in game[tile].adjacent:
             if game[enemyTile].owner != player.index:
