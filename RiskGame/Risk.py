@@ -136,11 +136,11 @@ def sumFriendly(game, name):
 
 def sendData(game, player):
     dataFile = open("/workspaces/RiskML/RiskBot/GameData.txt", "w")
-    dataFile.write(f"{player.index}\n")
-    for tile in player.territories:
-        for enemyTile in game[tile].adjacent:
-            if game[enemyTile].owner != player.index:
-                dataFile.write(f"{game[tile].troops}, {game[enemyTile].troops}, {sumFriendly(game, enemyTile)}\n")
+    for tile in game:
+        if game[tile].owner == player.index:
+            dataFile.write(f"{game[tile].troops}\n")
+        else:
+            dataFile.write(f"{game[tile].troops * -1}\n")
 
 #Utility method
 def countTroops(game):
