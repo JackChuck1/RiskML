@@ -19,12 +19,16 @@ class Tile:
 def readGameInfo(file:__file__):
     gameInfo = csv.reader(file)
     game = {}
+    gameIndexes = {}
+    i = 0
     for line in gameInfo:
         if line[0] == "Territory":
             continue
         #Index 0: Name, Index 1: Continent, Index 2-End: Adjacent Tile Names
         game[line[0]] = Tile(line[1],line[2:])
-    return game
+        gameIndexes[i] = line[0]
+        i += 1
+    return game, gameIndexes
 
 #returns an array of 2 player objects
 def randomizeOwnership(game, teams):
@@ -111,6 +115,7 @@ def calculateBonus(game, player):
 
 def placeTroops(game, name, num):
     game[name].troops += num
+    print(game[name].troops)
 
 #Utility method
 def printGame(game):
@@ -135,12 +140,12 @@ def sumFriendly(game, name):
     return sum
 
 def sendData(game, player):
-    dataFile = open("/workspaces/RiskML/RiskBot/GameData.txt", "w")
-    for tile in game:
-        if game[tile].owner == player.index:
-            dataFile.write(f"{game[tile].troops}\n")
-        else:
-            dataFile.write(f"{game[tile].troops * -1}\n")
+    with open("/workspaces/RiskML/RiskBot/GameData.txt", "w") as dataFile:
+        for tile in game:
+            if game[tile].owner == player.index:
+                dataFile.write(f"{game[tile].troops}\n")
+            else:
+                dataFile.write(f"{game[tile].troops * -1}\n")
 
 #Utility method
 def countTroops(game):
@@ -149,21 +154,29 @@ def countTroops(game):
         troops[game[tile].owner] += game[tile].troops
     return troops
 
-game = readGameInfo(open("RiskGame/GameInfo.csv", "r"))
-players = randomizeOwnership(game, 2)
-randomizeTroops(game, players)
-printGame(game)
-print()
-turn = 0
-
-while len(players[0].territories) > 0 and len(players[1].territories) > 0:
+class Game():
+    def __init__(self):
+        self.game, self.gameIndexes = readGameInfo(open("RiskGame/GameInfo.csv", "r"))
+        self.players = randomizeOwnership(self.game, 2)
+        self.turn = 0
+        randomizeTroops(self.game, self.players)
+        printGame(self.game)
+        print()
+        sendData(self.game, self.players[self.turn%2])
     
-    playerTurn = turn % 2
-    sendData(game, players[playerTurn])
-    troops = calculateBonus(game, players[playerTurn])
-    name = input(f"You have {troops} troops, where would you like the place them")
-    placeTroops(game, name, troops)
-    print("Make your move")
+    def placeTroops(self, action, values):
+        totalTroops = calculateBonus(self.game, self.players[self.turn%2])
+        print(totalTroops)
+        totalValues = values[0] + values[1] + values[2]
+        normTroops = (totalTroops * (values[0]/totalValues),
+                      totalTroops * (values[1]/totalValues),
+                      totalTroops * (values[2]/totalValues))
+        placeTroops(self.game, self.gameIndexes[action[0]], normTroops[0])
+        placeTroops(self.game, self.gameIndexes[action[1]], normTroops[1])
+        placeTroops(self.game, self.gameIndexes[action[2]], normTroops[2])
+        sendData(self.game, self.players[self.turn%2])
+
+"""
     move = [input("Choose an attacking territory"), input("Choose a defending territory")]
     while move[0] != "DONE":
         if ".info" in move[0]:
@@ -175,3 +188,4 @@ while len(players[0].territories) > 0 and len(players[1].territories) > 0:
             print("Invalid Move")
         move = [input("Choose an attacking territory"), input("Choose a defending territory")]
     turn += 1
+"""
