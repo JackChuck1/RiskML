@@ -1,5 +1,7 @@
 import csv
 import random
+import math
+
 class Player:
     def __init__(self):
         self.territories = []
@@ -168,9 +170,15 @@ class Game():
         totalTroops = calculateBonus(self.game, self.players[self.turn%2])
         print(totalTroops)
         totalValues = values[0] + values[1] + values[2]
-        normTroops = (totalTroops * (values[0]/totalValues),
-                      totalTroops * (values[1]/totalValues),
-                      totalTroops * (values[2]/totalValues))
+        normTroops = [round(totalTroops * (values[0]/totalValues)),
+                      round(totalTroops * (values[1]/totalValues)),
+                      round(totalTroops * (values[2]/totalValues))]
+        print(f"{normTroops[0]}, {normTroops[1]}, {normTroops[2]}")
+        if normTroops[0] + normTroops[1] + normTroops[2] < totalTroops:
+            normTroops[0] += 1  #Adjust for rounding errors
+        elif normTroops[0] + normTroops[1] + normTroops[2] > totalTroops:
+            normTroops[0] -= 1  #Adjust for rounding errors
+        print(f"{normTroops[0]}, {normTroops[1]}, {normTroops[2]}")
         placeTroops(self.game, self.gameIndexes[action[0]], normTroops[0])
         placeTroops(self.game, self.gameIndexes[action[1]], normTroops[1])
         placeTroops(self.game, self.gameIndexes[action[2]], normTroops[2])

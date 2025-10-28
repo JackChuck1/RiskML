@@ -40,7 +40,7 @@ class PlaceEnv(gym.Env):
                 indexes[2] = indexes[1]
                 indexes[1] = i
             elif value > action[indexes[2]]:
-                indexes[2]
+                indexes[2] = i
             i += 1
 
         values = (action[indexes[0]], action[indexes[1]], action[indexes[2]])
