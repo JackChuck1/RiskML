@@ -1,9 +1,9 @@
 import gymnasium as gym
 import numpy as np
 import sys
+
 sys.path.append("/workspaces/RiskML/")
 from RiskGame.Risk import Game
-
 #This env is used to train the bot that places troops
 class PlaceEnv(gym.Env):
     
@@ -13,7 +13,7 @@ class PlaceEnv(gym.Env):
         self.troop_counts = troopCounts
 
         #Spaces
-        self.observation_space = gym.spaces.Discrete(42)
+        self.observation_space = gym.spaces.Box(low=np.inf, high=np.inf, shape=(42,), dtype=np.int32)
         self.action_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(42,), dtype=np.float32)
     
     def _get_game_data(self):
