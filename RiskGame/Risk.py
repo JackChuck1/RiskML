@@ -33,14 +33,19 @@ def readGameInfo(file:__file__):
     return game, gameIndexes
 
 #returns an array of 2 player objects
-def randomizeOwnership(game, teams):
+def randomizeOwnership(seed, game, teams):
     teamMax = [42//teams] * teams
     players = [Player(), Player()]
     players[0].index = 0
     players[1].index = 1
+    i = 0
     for tile in game:
+        random.seed(seed + i)
+        i += 1
         rand = random.randint(0,teams-1)
         while teamMax[rand] == 0:
+            random.seed(seed + i)
+            i += 1
             rand = random.randint(0,teams-1)
         teamMax[rand] -= 1
         game[tile].owner = rand
@@ -48,16 +53,20 @@ def randomizeOwnership(game, teams):
         players[rand].territories += [tile]
     return players
 
-def randomizeTroops(game, players):
+def randomizeTroops(seed, game, players):
+    i = 0
     for player in players:
+        
         #troops = 40 - amount already placed
         troops = 40 - 21
         while not troops == 0:
+            random.seed(seed + i)
             game[player.territories[random.randint(0,20)]].troops += 1
             troops -= 1
+            i += 1
 
 #name1 attacks name2
-def attackTerritory(game, name1, name2):
+def attackTerritory(game, name1, name2, players):
     if(name2 in game[name1].adjacent and game[name1].troops > 1):
         attackRolls = [random.randint(0,6), random.randint(0,6)]
         if game[name2].troops == 2:
@@ -84,6 +93,8 @@ def attackTerritory(game, name1, name2):
         players[game[name2].owner].territories.remove(name2)
         game[name1]. troops = 1
         print(f"{name1} has beaten {name2}, {game[name2].troops} remain")
+        return True
+    return False
 
 def calculateBonus(game, player):
     troops = len(player.territories)//3
@@ -145,9 +156,11 @@ def sendData(game, player):
     with open("/workspaces/RiskML/RiskBot/GameData.txt", "w") as dataFile:
         for tile in game:
             if game[tile].owner == player.index:
-                dataFile.write(f"{game[tile].troops}\n")
+                dataFile.write(f"{game[tile].troops}")
             else:
-                dataFile.write(f"{game[tile].troops * -1}\n")
+                dataFile.write(f"{game[tile].troops * -1}")
+            if tile != "Western_Europe":
+                dataFile.write("\n")
 
 #Utility method
 def countTroops(game):
@@ -156,19 +169,29 @@ def countTroops(game):
         troops[game[tile].owner] += game[tile].troops
     return troops
 
+def checkValid(game, name1, name2):
+    if game[name1].owner == game[name2].owner:
+        return False
+    else:
+        return True
+    
+def checkWin(player):
+    if len(player.territories) == 42:
+        return True
+    return False
+
 class Game():
-    def __init__(self):
+    def __init__(self, seed):
         self.game, self.gameIndexes = readGameInfo(open("RiskGame/GameInfo.csv", "r"))
-        self.players = randomizeOwnership(self.game, 2)
+        self.players = randomizeOwnership(seed, self.game, 2)
         self.turn = 0
-        randomizeTroops(self.game, self.players)
+        randomizeTroops(seed, self.game, self.players)
         printGame(self.game)
         print()
         sendData(self.game, self.players[self.turn%2])
     
     def placeTroops(self, action, values):
         totalTroops = calculateBonus(self.game, self.players[self.turn%2])
-        print(totalTroops)
         totalValues = values[0] + values[1] + values[2]
         normTroops = [round(totalTroops * (values[0]/totalValues)),
                       round(totalTroops * (values[1]/totalValues)),
@@ -185,8 +208,20 @@ class Game():
         sendData(self.game, self.players[self.turn%2])
 
     def attack(self, action):
-        attackTerritory(self.game, self.gameIndexes[action[0]], self.gameIndexes[action[1]])
+        if checkValid(self.game, self.gameIndexes[action[0]], self.gameIndexes[action[1]]):
+            reward = -1
+        elif attackTerritory(self.game, self.gameIndexes[action[0]], self.gameIndexes[action[1]], self.players):
+            reward = 1
+        else:
+            reward = 0
+
+        if checkWin(self.players[self.turn%2]):
+            reward = 5
+            terminated = True
+        else:
+            terminated = False
         sendData(self.game, self.players[self.turn%2])
+        return reward, terminated
 
 """
     move = [input("Choose an attacking territory"), input("Choose a defending territory")]

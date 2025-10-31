@@ -1,4 +1,6 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+    // Set the interpreter path to the environment that has `gymnasium` installed
+    "python.defaultInterpreterPath": "/home/codespace/.python/current/bin/python"
 }
