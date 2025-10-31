@@ -175,13 +175,17 @@ class Game():
                       round(totalTroops * (values[2]/totalValues))]
         print(f"{normTroops[0]}, {normTroops[1]}, {normTroops[2]}")
         if normTroops[0] + normTroops[1] + normTroops[2] < totalTroops:
-            normTroops[0] += 1  #Adjust for rounding errors
+            normTroops[0] += 1  #Adjust for rounding issues
         elif normTroops[0] + normTroops[1] + normTroops[2] > totalTroops:
-            normTroops[0] -= 1  #Adjust for rounding errors
+            normTroops[0] -= 1  #Adjust for rounding issues
         print(f"{normTroops[0]}, {normTroops[1]}, {normTroops[2]}")
         placeTroops(self.game, self.gameIndexes[action[0]], normTroops[0])
         placeTroops(self.game, self.gameIndexes[action[1]], normTroops[1])
         placeTroops(self.game, self.gameIndexes[action[2]], normTroops[2])
+        sendData(self.game, self.players[self.turn%2])
+
+    def attack(self, action):
+        attackTerritory(self.game, self.gameIndexes[action[0]], self.gameIndexes[action[1]])
         sendData(self.game, self.players[self.turn%2])
 
 """
