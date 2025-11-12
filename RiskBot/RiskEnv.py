@@ -96,7 +96,6 @@ class AttackEnv(gym.Env):
         #Implement call to Risk.py to update game and get reward
 
 if __name__ == "__main__":
-    print("Program crashing after ts ----------------------------------------")
     placeEnv = gym.make("PlaceEnv-v0", seed=123)
     attackEnv = gym.make("AttackEnv-v0", placeEnv=placeEnv)
     check_env(placeEnv.unwrapped)
