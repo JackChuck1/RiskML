@@ -88,13 +88,13 @@ class AttackEnv(gym.Env):
         #Implement call to Risk.py to reset game
 
     def step(self, action):
-        highFriendly = (-2, 43)
-        highEnemy = (-2, 43)
+        highFriendly = (-2, 45)
+        highEnemy = (-2, 45)
         index = 0
         for i in action:
             if i[0] > highFriendly[0]:
                 highFriendly = (i[0], index)
-            if i[1] > highFriendly[1]:
+            if i[1] > highEnemy[0]:
                 highEnemy = (i[1], index)
             index += 1
         reward, terminated = self.placeEnv.game.attack(np.array([highFriendly[1], highEnemy[1]]))

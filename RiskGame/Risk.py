@@ -186,8 +186,6 @@ class Game():
         self.players = randomizeOwnership(seed, self.game, 2)
         self.turn = 0
         randomizeTroops(seed, self.game, self.players)
-        printGame(self.game)
-        print()
         sendData(self.game, self.players[self.turn%2])
     
     def placeTroops(self, action, values):
