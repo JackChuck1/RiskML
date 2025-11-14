@@ -69,7 +69,7 @@ class AttackEnv(gym.Env):
         self.placeEnv = placeEnv
         #Spaces
         self.observation_space = gym.spaces.Box(low=np.inf, high=np.inf, shape=(42,), dtype=np.int32)
-        self.action_space = gym.spaces.Box(low=0, high=42, shape=(2,), dtype=np.int32)
+        self.action_space = gym.spaces.Box(low=-1, high=1, shape=(42,2), dtype=np.float32)
     
     def _get_game_data(self):
         dataFile = open("/workspaces/RiskML/RiskBot/GameData.txt", "r")
@@ -88,7 +88,16 @@ class AttackEnv(gym.Env):
         #Implement call to Risk.py to reset game
 
     def step(self, action):
-        reward, terminated = self.placeEnv.game.attack(action)
+        highFriendly = (-2, 43)
+        highEnemy = (-2, 43)
+        index = 0
+        for i in action:
+            if i[0] > highFriendly[0]:
+                highFriendly = (i[0], index)
+            if i[1] > highFriendly[1]:
+                highEnemy = (i[1], index)
+            index += 1
+        reward, terminated = self.placeEnv.game.attack(np.array([highFriendly[1], highEnemy[1]]))
         
         info = {}
         obs = self._get_game_data
